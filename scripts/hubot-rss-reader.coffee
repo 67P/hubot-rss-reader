@@ -34,6 +34,10 @@ process.env.HUBOT_RSS_LIMIT_ON_ADD ||= 5
 module.exports = (robot) ->
 
   logger =
+    debug: (msg) ->
+      return debug msg if debug.enabled
+      msg = JSON.stringify msg if typeof msg isnt 'string'
+      robot.logger.debug "#{debug.namespace}: #{msg}"
     info: (msg) ->
       return debug msg if debug.enabled
       msg = JSON.stringify msg if typeof msg isnt 'string'
@@ -70,14 +74,14 @@ module.exports = (robot) ->
   ## wait until connect redis
   robot.brain.once 'loaded', ->
     run = (opts) ->
-      logger.info "checker start"
+      logger.debug "checker start"
       checker.check opts
       .then ->
-        logger.info "wait #{process.env.HUBOT_RSS_INTERVAL} seconds"
+        logger.debug "wait #{process.env.HUBOT_RSS_INTERVAL} seconds"
         setTimeout run, 1000 * process.env.HUBOT_RSS_INTERVAL
       , (err) ->
         logger.error err
-        logger.info "wait #{process.env.HUBOT_RSS_INTERVAL} seconds"
+        logger.debug "wait #{process.env.HUBOT_RSS_INTERVAL} seconds"
         setTimeout run, 1000 * process.env.HUBOT_RSS_INTERVAL
 
     run()
